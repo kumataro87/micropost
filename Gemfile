@@ -14,13 +14,14 @@ gem 'bootsnap',   '1.10.3', require: false
 group :development, :test do
   gem 'sqlite3', '1.4.2'
   gem 'byebug',  '11.0.1', platforms: [:mri, :mingw, :x64_mingw]
+  gem 'rspec-rails', '5.1.2'
 end
 
 group :development do
   gem 'web-console',           '4.0.1'
   gem 'listen',                '3.1.5'
-  gem 'spring',                '2.1.0'
-  gem 'spring-watcher-listen', '2.0.1'
+  # gem 'spring',                '2.1.0'
+  # gem 'spring-watcher-listen', '2.0.1'
 end
 
 group :test do
