@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let!(:user) { create :user }
+  let!(:user) { build :user }
 
   it 'userが有効であること' do
     expect(user).to be_valid
@@ -47,6 +47,8 @@ RSpec.describe User, type: :model do
 
   it 'emailがユニークであること' do
     duplicate_user = user.dup
+    duplicate_user.email = user.email.upcase
+    user.save
     expect(duplicate_user).to_not be_valid
   end
 

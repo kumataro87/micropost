@@ -24,14 +24,22 @@ RSpec.describe "Users", type: :request do
     end
     
     context "有効な値の場合" do
-      it '有効な値が登録されること' do
+      let(:user_params) { { user: { name: 'test taro',
+                                      email: 'test@example.com',
+                                      password: 'password',
+                                      password_confirmation: 'password' } } }
+      
+      it '登録されること' do
         expect{ 
-          post users_path, params: { user: { name: 'test taro',
-                                             email: 'test@example.com',
-                                             password: 'password',
-                                             password_confirmation: 'password' }}
-          }.to change(User, :count).by(1)
-        end
+          post users_path, params: user_params
+        }.to change(User, :count).by(1)
+      end
+
+      it 'ログイン状態になること' do
+        post users_path, params: user_params
+        # be_truthyは真、be_falsey
+        expect(logged_in?).to be_truthy
       end
     end
+  end
 end
