@@ -22,7 +22,7 @@ RSpec.describe "Sessions", type: :system do
     context "有効な値の場合" do
       let!(:user) { create(:user) }
 
-      it "ログイン状態のページに切り替わること" do
+      it "ログイン状態に切り替わること" do
         visit login_path
         fill_in "Email", with: user.email
         fill_in "Password", with: user.password
