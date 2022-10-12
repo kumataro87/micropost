@@ -1,9 +1,31 @@
 module LoginSupport
-  def logged_in?
-    !session[:user_id].nil?
+  # def logged_in?
+  #   !session[:user_id].nil?
+  # end
+  module System
+    def log_in(user)
+      visit login_path
+      fill_in 'Email', with: user.name
+      fill_in 'Password', with: user.email
+      click_button 'Log in'
+    end
+  end
+
+  module Request
+    def log_in(user)
+      post login_path params: { session: { email: user.email,
+                                           password: user.password}}
+    end
+
+    def logged_in?
+      !session[:user_id].nil?
+    end
   end
 end
  
 RSpec.configure do |config|
-  config.include LoginSupport
+  # config.include LoginSupport
+  config.include LoginSupport::System,  type: :system
+  config.include LoginSupport::Request, type: :request
+
 end

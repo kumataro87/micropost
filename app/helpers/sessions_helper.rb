@@ -18,7 +18,6 @@ module SessionsHelper
     # if session[:user_id]
     #   @current_user ||= User.find_by(id: session[:user_id])
     # end
-
     if (user_id = session[:user_id])
       @current_user ||= User.find_by(id: session[:user_id])
     elsif(user_id = cookies.encrypted[:user_id])
@@ -49,4 +48,19 @@ module SessionsHelper
     @current_user = nil
   end
 
+  # 渡されたユーザーがカレントユーザーであればtrueを返す
+  def correct_user?(user)
+    user && user == current_user
+  end
+
+  # フレンドリーフォワーディング(pop)
+  def redirect_back_or(default)
+    redirect_to(session[:forwarding_url] || default)
+    session.delete(:forwarding_url)
+  end
+
+  # フレンドリーフォワーディング(push)
+  def store_location
+    session[:forwarding_url] = request.original_url if request.get?
+  end
 end
