@@ -2,11 +2,32 @@ require 'rails_helper'
 
 RSpec.describe "Users", type: :request do
   describe "GET /index" do
+    let(:user) { create(:user) }
+
     it "returns http success" do
       get users_path
       expect(response).to redirect_to login_path
     end
 
+    describe 'pagenation' do
+      before do
+        30.times { create(:continuous_users)}
+        log_in user
+        get users_path
+      end
+
+      context "ログインしている場合" do
+        it "ユーザーごとのリンクが存在すること" do
+          User.paginate(page: 1).each do |user|
+            expect(response.body).to include "<a href=\"#{user_path(user)}\">"
+          end
+        end
+
+        it 'div.paginationが存在すること' do
+          expect(response.body).to include 'class="pagination"'
+        end
+      end
+    end
   end
   describe "GET /signup" do
     it "returns http success" do
