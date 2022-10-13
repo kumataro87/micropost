@@ -2,7 +2,9 @@ require 'rails_helper'
 
 RSpec.describe "Users", type: :request do
   describe "GET /index" do
-    let(:user) { create(:user) }
+    let(:admin){ create(:user) }
+
+    let(:non_admin) { create(:other_user) }
 
     it "returns http success" do
       get users_path
@@ -11,8 +13,8 @@ RSpec.describe "Users", type: :request do
 
     describe 'pagenation' do
       before do
-        30.times { create(:continuous_users)}
-        log_in user
+        30.times { create(:other_user)}
+        log_in admin
         get users_path
       end
 
@@ -29,6 +31,7 @@ RSpec.describe "Users", type: :request do
       end
     end
   end
+
   describe "GET /signup" do
     it "returns http success" do
       # get "/signup"
@@ -87,7 +90,7 @@ RSpec.describe "Users", type: :request do
     end
 
     context "別のユーザーの場合" do
-      let!(:other_user) { create(:user) }
+      let!(:other_user) { create(:other_user) }
 
       # it "flashが表示されること" do
       #   log_in user
@@ -114,6 +117,7 @@ RSpec.describe "Users", type: :request do
 
   describe "PATCH /users" do
     let(:user) { create(:user)}
+    let(:other_user) { create(:other_user) }
     
     context "有効の場合" do
 
@@ -182,21 +186,78 @@ RSpec.describe "Users", type: :request do
       end
     end
 
-    # context "別のユーザーの場合" do
-    #   let!(:other_user) { create(:user) }
-    #   before do
-    #     log_in user
-    #     patch user_path(other_user), params: { user: { name:  user.name,
-    #                                                    email: user.email }}
-    #   end
+    context "別のユーザーの場合" do
+      let!(:other_user) { create(:other_user) }
+      before do
+        log_in user
+        patch user_path(other_user), params: { user: { name:  user.name,
+                                                       email: user.email }}
+      end
 
-    #   it "flashがからであること" do
-    #     expect(flash).to be_empty
-    #   end
+      # it "flashがからであること" do
+      #   expect(flash).to be_empty
+      # end
 
-    #   it "root_urlにリダイレクトされること" do
-    #     expect(response).to respond_to root_url
-    #   end
-    # end
+      it "root_urlにリダイレクトされること" do
+        expect(response).to redirect_to root_url
+      end
+    end
+
+    context "パラメータにadminが含まれる場合" do
+      it "admin属性を変更できないこと" do
+        log_in other_user
+        expect(other_user.admin?).to eq false
+        patch user_path(other_user), params: { user: {name: 'test taro',
+                                          email: 'test@example.com',
+                                          password: 'password',
+                                          password_confirmation: 'password',
+                                          admin: true}}
+        other_user.reload                                  
+        expect(other_user.admin?).to eq false
+          
+      end
+    end
+  end
+
+  describe "DELETE /users/:id" do
+    let(:user) { create(:user) }
+    let!(:other_user) { create(:other_user) }
+
+    context "未ログインの場合" do
+      it "削除できないこと" do
+        expect {
+          delete user_path(other_user)
+        }.to_not change(User, :count)
+      end
+
+      it "ログインページにリダイレクトすること" do
+        delete user_path(user) 
+        expect(response).to redirect_to login_path
+      end
+    end
+
+    context "adminユーザーでない場合" do
+      it "削除できないこと" do
+        log_in other_user
+        expect {
+          delete user_path(user)
+        }.to_not change(User, :count)
+     end
+
+      it "ルートパスにリダイレクトすること" do
+        log_in other_user
+        delete user_path(user) 
+        expect(response).to redirect_to root_url
+      end
+    end
+
+    context 'adminユーザでログイン済みの場合' do
+      it '削除できること' do
+        log_in user
+        expect {
+          delete user_path(other_user)
+        }.to change(User, :count).by -1
+      end
+    end
   end
 end
