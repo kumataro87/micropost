@@ -48,8 +48,10 @@ RSpec.describe "Users", type: :system do
         fill_in 'Confirmation', with: 'password'
         click_button 'Create my account'
         # users/:id に遷移することを確認する
-        expect(current_path).to eq "/users/#{User.last.id}"
-        expect(page).to have_selector 'div.alert-success'
+        # expect(current_path).to eq "/users/#{User.last.id}"
+        expect(current_path).to eq "/"
+        # expect(page).to have_selector 'div.alert-success'
+        expect(page).to have_selector 'div.alert-info'
       end
     end
   end

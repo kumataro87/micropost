@@ -8,10 +8,17 @@ class SessionsController < ApplicationController
   def create
     user = User.find_by(email: params[:session][:email].downcase)
     if user && user.authenticate(params[:session][:password])
-      log_in user
-      params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-      flash[:success] = "ログインしました"
-      redirect_back_or user
+      if user.activated?
+        log_in user
+        params[:session][:remember_me] == '1' ? remember(user) : forget(user)
+        flash[:success] = "ログインしました"
+        redirect_back_or user
+      else
+        message = "アカウントが有効化されていません"
+        message += "メールのリンクをクリックしてください"
+        flash[:message] = message
+        redirect_to root_url
+      end
     else
       flash.now[:danger] = "入力されたメールアドレスとパスワードの組み合わせが見つかりません"
       render 'new'

@@ -59,6 +59,10 @@ RSpec.describe "Users", type: :request do
                                       email: 'test@example.com',
                                       password: 'password',
                                       password_confirmation: 'password' } } }
+
+      before do
+        ActionMailer::Base.deliveries.clear
+      end
       
       it '登録されること' do
         expect{ 
@@ -66,10 +70,26 @@ RSpec.describe "Users", type: :request do
         }.to change(User, :count).by(1)
       end
 
-      it 'ログイン状態になること' do
+      # it 'ログイン状態になること' do
+      #   post users_path, params: user_params
+      #   # be_truthyは真、be_falsey
+      #   expect(logged_in?).to be_truthy
+      # end
+      it 'root_urlにリダイレクトすること' do
         post users_path, params: user_params
-        # be_truthyは真、be_falsey
-        expect(logged_in?).to be_truthy
+        expect(response).to redirect_to root_url
+      end
+
+      it 'メールが一件存在すること' do
+        post users_path, params: user_params
+        expect(ActionMailer::Base.deliveries.size).to eq 1
+      end
+
+      it '有効化リンク使用前にactivateされてないこと' do
+        post users_path, params: user_params
+        # Userモデルactivatedカラムの審議値を問い合わせる
+        # activated?がマッチャに変換されたもの
+        expect(User.last).to_not be_activated
       end
     end
   end
@@ -220,7 +240,7 @@ RSpec.describe "Users", type: :request do
   end
 
   describe "DELETE /users/:id" do
-    let(:user) { create(:user) }
+    let!(:user) { create(:user) }
     let!(:other_user) { create(:other_user) }
 
     context "未ログインの場合" do

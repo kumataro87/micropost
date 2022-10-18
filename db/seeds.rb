@@ -2,7 +2,9 @@ User.create!(name: "Taro",
              email: "Taro@exemple.com",
              password: "password", 
              password_confirmation: "password",
-             admin: true)
+             admin: true,
+             activated: true,
+             activated_at: Time.zone.now)
 
 #追加のユーザーをまとめて生成
 99.times do |n|
@@ -12,5 +14,7 @@ User.create!(name: "Taro",
   User.create!(name:  name,
                email: email,
                password:              password,
-               password_confirmation: password)
+               password_confirmation: password,
+               activated: true,
+               activated_at: Time.zone.now)
 end
