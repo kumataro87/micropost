@@ -1,4 +1,5 @@
 class User < ApplicationRecord
+  has_many :microposts, dependent: :destroy
   attr_accessor :remember_token, :activation_token
   # before_save { self.email = email.downcase}
   # before_save 
@@ -61,6 +62,18 @@ class User < ApplicationRecord
     UserMailer.account_activation(self).deliver_now
   end
 
+  def feed
+    Micropost.where("user_id = ?", id)
+  end
+
+
+  def feed
+    # 疑問符があるとidがエスケープされる
+    # SQLインジェクション対策
+    # SQLに変数を代入するときは常にエスケープする
+    Micropost.where("user_id = ?", self.id)
+  end
+  
   private
 
     def downcase_email
@@ -71,4 +84,5 @@ class User < ApplicationRecord
       self.activation_token = User.new_token
       self.activation_digest = User.digest(activation_token)
     end
+
 end
