@@ -12,12 +12,14 @@
 
 ActiveRecord::Schema.define(version: 2022_10_18_222637) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "microposts", force: :cascade do |t|
     t.text "content"
-    t.integer "user_id"
+    t.bigint "user_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index "\"user_id\", \"create_at\"", name: "index_microposts_on_user_id_and_create_at"
     t.index ["user_id"], name: "index_microposts_on_user_id"
   end
 
