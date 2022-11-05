@@ -65,6 +65,10 @@ RSpec.describe "MicroPosts", type: :system do
       expect(page).to have_selector 'div.pagination'
     end
 
+    it 'ファイル選択ボタンがあること' do
+      expect(page).to have_selector 'input[type=file]'
+    end
+
     it "削除できること" do
       fill_in "micropost_content", with: "learning the program" 
       click_button '投稿する'
@@ -82,10 +86,11 @@ RSpec.describe "MicroPosts", type: :system do
       it '投稿されること' do
         expect{
           fill_in "micropost_content", with: "learning the program"
+          attach_file 'micropost[image]', "#{Rails.root}/spec/factories/kitten.jpg"
           click_button '投稿する'
-        }.to change(Micropost, :count).by(1)
-        
+        }.to change(Micropost, :count).by(1)      
         expect(page).to have_content "learning the program"
+        expect(page).to have_selector "img[src$='kitten.jpg']"
       end
     end
     
