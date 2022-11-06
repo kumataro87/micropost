@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   let!(:user) { build :user }
+  let(:other_user){ create(:other_user)}
 
   it 'userが有効であること' do
     expect(user).to be_valid
@@ -79,4 +80,27 @@ RSpec.describe User, type: :model do
       expect(user.authenticated?(:remember, '')).to be_falsy
     end
   end
+
+  describe "relationship" do
+    it "ユーザーをフォローできること" do
+      expect(user.following?(other_user)).to_not be_truthy
+      user.follow(other_user)
+      expect(user.following?(other_user)).to be_truthy
+    end
+    
+    it "ユーザーをアンフォローできること" do
+      user.follow(other_user)
+      expect(user.following?(other_user)).to be_truthy
+      user.unfollow(other_user)
+      expect(user.following?(other_user)).to_not be_truthy    
+    end
+    
+    it "ユーザーをフォローしたとき、相手のフォロワーに追加されること" do
+      expect(other_user.followers.include?(user)).to_not be_truthy 
+      user.follow(other_user)
+      Relationship.reload
+      expect(other_user.followers.include?(user)).to be_truthy 
+    end
+  end
 end
+  

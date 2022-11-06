@@ -1,5 +1,20 @@
 class User < ApplicationRecord
   has_many :microposts, dependent: :destroy
+  has_many :active_relationships,   class_name: "Relationship",
+                                    foreign_key: "follower_id",
+                                    dependent: :destroy
+  has_many :passive_relationships,  class_name: "Relationship",
+                                    foreign_key: "followed_id",
+                                    dependent: :destroy
+  # sourceで following 配列は followed id の集合であることを明示的に示す
+    # user.following.include?(other_user)
+    # user.following << other_user "追加"
+    # user.following.delete(other_user) "削除"
+  has_many :following, through: :active_relationships,  source: :followed
+  # 外部キー <:followersの単数系>_id を自動的に探すため sourceキーは省略 
+  has_many :followers, through: :passive_relationships
+
+
   attr_accessor :remember_token, :activation_token
   # before_save { self.email = email.downcase}
   # before_save 
@@ -73,6 +88,21 @@ class User < ApplicationRecord
     # SQLに変数を代入するときは常にエスケープする
     Micropost.where("user_id = ?", self.id)
   end
+
+  # ユーザーをフォローする
+  def follow(other_user)
+    following << other_user
+  end
+
+  # フォローを解除する
+  def unfollow(other_user)
+    following.delete(other_user) if following?(other_user)
+  end
+
+  # 現在のユーザーがフォローしていたらtureを返す
+  def following?(other_user)
+    following.include?(other_user)
+  end
   
   private
 
@@ -84,5 +114,4 @@ class User < ApplicationRecord
       self.activation_token = User.new_token
       self.activation_digest = User.digest(activation_token)
     end
-
 end
