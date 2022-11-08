@@ -280,4 +280,62 @@ RSpec.describe "Users", type: :request do
       end
     end
   end
+
+  describe "Get users/:id/following" do
+    let(:user) { create(:user, :user_with_followed) }
+    context "ログインしていない場合" do
+      it "ログインページにリダイレクト" do
+        get following_user_path(user)
+        expect(response).to redirect_to login_path
+      end
+    end
+
+    context "ログインしている場合" do
+      before do
+        log_in user
+        get following_user_path(user)
+      end
+
+      it "フォロー中のユーザー名が正しく表示されること" do
+        expect(user.following.empty?).to_not be_truthy
+        user.following.each do |user|
+          expect(response.body).to include user.name
+        end
+      end
+
+      # it "フォロー数が正しいこと" do
+      #   expect(response.body).to include "#{user.following.count.to_s} following"
+      # end
+    end
+  end
+
+  describe "Get /users/:id/followers" do
+    let!(:user) { create(:user, :user_with_follower) }
+    
+    context "ログインしていない場合" do
+      it "ログインページにリダイレクト" do
+        get followers_user_path(user)
+        expect(response).to redirect_to login_path
+      end
+    end
+
+    context "ロ
+    グインしている場合" do
+      before do
+        log_in user
+        get followers_user_path(user)
+      end
+
+      it "フォロワーのユーザー名が正しく表示されること" do
+        expect(user.followers.empty?).to_not be_truthy
+        user.followers.each do |user|
+          expect(response.body).to include user.name.to_s
+        end
+      end
+
+      # it "フォロワー数が正しいこと" do
+      #   expect(response.body).to include "#{user.followers.count.to_s} following"
+      # end
+    end
+  end
 end

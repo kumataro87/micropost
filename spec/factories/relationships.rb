@@ -1,4 +1,6 @@
 FactoryBot.define do
-  factory :relationship do
-  end
+  # factory :relationship do
+  #   user
+  #   other_user
+  # end
 end
