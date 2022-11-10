@@ -78,15 +78,14 @@ class User < ApplicationRecord
   end
 
   def feed
-    Micropost.where("user_id = ?", id)
-  end
-
-
-  def feed
     # 疑問符があるとidがエスケープされる
     # SQLインジェクション対策
     # SQLに変数を代入するときは常にエスケープする
-    Micropost.where("user_id = ?", self.id)
+    # Micropost.where("user_id = ?", self.id)
+
+    # following_idsはhas_many :followingの関連付けをしたときにActive Recordが自動生成したもの
+    # following.map(&:id)と同じ
+    Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id)
   end
 
   # ユーザーをフォローする

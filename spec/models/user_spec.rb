@@ -102,5 +102,36 @@ RSpec.describe User, type: :model do
       expect(other_user.followers.include?(user)).to be_truthy 
     end
   end
+    
+  describe "feed" do
+    let!(:user) { create(:user)}
+    let(:followed_user ){ create(:other_user) }
+    let(:no_followed_user){ create(:other_user)}
+
+    before do
+      user.microposts.create(content: "self micropost")
+      followed_user.microposts.create(content: "followed post")
+      no_followed_user.microposts.create(content: "no followed post")
+      user.following << followed_user
+    end
+
+    it "自身のmicropostが含まれること" do
+      user.microposts.each do |post_self|
+        expect(user.feed.include?(post_self)).to be_truthy
+      end
+    end
+
+    it "フォローユーザーのmicropostが含まれれること" do
+      followed_user.microposts.each do |post_following|
+        expect(user.feed.include?(post_following)).to be_truthy
+      end
+    end
+
+    it "フォローしていないユーザーは表示されないこと" do
+      no_followed_user.microposts.each do |post_unfollowed|
+        expect(user.feed.include?(post_unfollowed)).to_not be_truthy
+      end
+    end
+  end
 end
   
