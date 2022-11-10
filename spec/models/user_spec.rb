@@ -97,8 +97,8 @@ RSpec.describe User, type: :model do
     
     it "ユーザーをフォローしたとき、相手のフォロワーに追加されること" do
       expect(other_user.followers.include?(user)).to_not be_truthy 
-      user.follow(other_user)
-      Relationship.reload
+      # user.follow(other_user)
+      other_user.followers << user
       expect(other_user.followers.include?(user)).to be_truthy 
     end
   end
