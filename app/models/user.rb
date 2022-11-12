@@ -85,7 +85,13 @@ class User < ApplicationRecord
 
     # following_idsはhas_many :followingの関連付けをしたときにActive Recordが自動生成したもの
     # following.map(&:id)と同じ
-    Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id)
+    # Micropost.where("user_id IN (?) OR user_id = ?", following_ids, id)
+    
+    # サブセレクトを使用する
+    following_ids = "SELECT followed_id FROM relationships
+                      WHERE follower_id = :user_id"
+    Micropost.where("user_id IN  (#{following_ids})
+                    OR user_id = :user_id", user_id: id)
   end
 
   # ユーザーをフォローする
